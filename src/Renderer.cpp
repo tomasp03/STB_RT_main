@@ -5,94 +5,150 @@ static glm::vec3 LerpVec3(glm::vec3 a, glm::vec3 b, float t)
     return glm::vec3(std::lerp(a.x, b.x, t), std::lerp(a.y, b.y, t), std::lerp(a.z, b.z, t));
 }
 
-//static uint32_t convertToRGBA(glm::vec4 color)
-//{
-//    uint8_t r = (uint8_t)(color.r * 255.0f);
-//    uint8_t g = (uint8_t)(color.g * 255.0f);
-//    uint8_t b = (uint8_t)(color.b * 255.0f);
-//    uint8_t a = (uint8_t)(color.a * 255.0f);
-//
-//    uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
-//    return result;
-//}
-
-Renderer::Renderer(int width, int height, camera* cam)
+static uint32_t ConvertToRGBA(glm::vec4 color)
 {
-    m_cam = cam;
-    dimesnisons = glm::ivec2(width, height);
-    Sphere sphere1, sphere2, sphere3, sphere4, sphere5, sphere6;
+    uint8_t r = (uint8_t)(color.r * 255.0f);
+    uint8_t g = (uint8_t)(color.g * 255.0f);
+    uint8_t b = (uint8_t)(color.b * 255.0f);
+    uint8_t a = (uint8_t)(color.a * 255.0f);
 
-    sphere1.center = glm::vec3(0.0, 0.0, -1.0);
-    sphere2.center = glm::vec3(0.0, -100.5, -1.0);
-    sphere3.center = glm::vec3(1.0, 0.0, -1.0);
-    sphere4.center = glm::vec3(0.0, 100.0, -5.0);
-    sphere5.center = glm::vec3(0.0, 100.0, -5.0);
-    sphere6.center = glm::vec3(0.0, 100.0, -5.0);
+    uint32_t result = (a << 24) | (b << 16) | (g << 8) | r;
+    return result;
+}
+
+static glm::vec4 GammaCorection2(glm::vec4 color)
+{
+    return glm::vec4(glm::sqrt(color));
+}
+
+Renderer::Renderer(int width, int height)
+{
+    random.Init();
+    m_Spheres = Scene::Load();
+    m_image.size = glm::ivec2(width, height);
+    m_accumulationImage = new glm::vec4[m_image.size.x * m_image.size.y];
+    m_image.data = new uint32_t[m_image.size.x * m_image.size.y];
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.WantCaptureMouse = true;
+    ImGuiPlatformIO& p_io = ImGui::GetPlatformIO(); (void)p_io;
+    ImGui::RenderPlatformWindowsDefault();
+
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+    io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+    //io.ConfigViewportsNoAutoMerge = true;
+
+    ImGuiWindowClass wclass;
+    io.ConfigViewportsNoDefaultParent = true;
+    wclass.ViewportFlagsOverrideSet = ImGuiWindowFlags_NoBringToFrontOnFocus;
+    wclass.ViewportFlagsOverrideSet = ImGuiViewportFlags_CanHostOtherWindows;
+
+    ImGui::StyleColorsDark();
+
+    ImageVerticalIter.resize(m_image.size.y);
+    for (int y = 0; y < m_image.size.y; y++)
+    {
+        ImageVerticalIter[y] = y;
+    }
 
 
 
-    sphere1.radius = 0.5f;
-    sphere2.radius = 100.0F;
-    sphere3.radius = 0.5f;
-    sphere4.radius = 80.0f;
-    sphere5.radius = 0.5f;
-    sphere6.radius = 0.5f;
+    loader::GLFW();
+    m_window = new Window(m_image.size.x, m_image.size.y, "RT.png");
+    loader::GladGL();
+
+    ImGui_ImplGlfw_InitForOpenGL(m_window->GetID(), true);
+    ImGui_ImplOpenGL3_Init("#version 460");
 
 
+    m_shader = new Shader("shaders\\basic.vert", "shaders\\basic.frag");
+    // Create reference containers for the Vartex Array Object, the Vertex Buffer Object, and the Element Buffer Object
 
+    OpenGL::Init();
 
-    sphere1.mat.albido = { 1.0f, 1.0f, 1.0f, 1.0f };
-    sphere2.mat.albido = { 0.5f, 0.0f, 0.0f, 1.0f };
-    sphere3.mat.albido = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    sphere4.mat.albido = { 0.f, 0.f, 0.f, 0.0f };
-    sphere5.mat.albido = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    sphere6.mat.albido = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    m_cam = new camera(glm::vec3(0, 0, -3), glm::vec3(0, 1, -1), glm::vec3(0, 1, 0), 90.0f, m_image.AspectRatio());
 
-
-
-
-    sphere1.mat.roughness = 0.f;
-    sphere2.mat.roughness = 0.f;
-    sphere3.mat.roughness = 0.5f;
-    sphere4.mat.roughness = 0.f;
-
-    sphere1.mat.smoothness = 0.0f;
-    sphere2.mat.smoothness = 0.f;
-    sphere3.mat.smoothness = 0.0f;
-    sphere4.mat.smoothness = 0.f;
-    sphere5.mat.smoothness = 0.f;
-    sphere6.mat.smoothness = 0.f;
-
-
-
-    sphere1.mat.emissionColor = glm::vec4(1);
-    sphere1.mat.emissionStrength = 0.0f;
-
-    sphere2.mat.emissionColor = glm::vec4(1);
-    sphere2.mat.emissionStrength = 0.0f;
-
-    sphere3.mat.emissionColor = glm::vec4(1);
-    sphere3.mat.emissionStrength = 0.0f;
-
-    sphere4.mat.emissionColor = { 1.f, 1.f, 1.f, 1.0f };;
-    sphere4.mat.emissionStrength = 20.0f;
-
-    sphere5.mat.emissionColor = glm::vec4(1);
-    sphere5.mat.emissionStrength = 0.0f;
-
-    sphere6.mat.emissionColor = glm::vec4(1);
-    sphere6.mat.emissionStrength = 0.0f;
-
-    m_Spheres.push_back(sphere3);
-    m_Spheres.push_back(sphere1);
-    m_Spheres.push_back(sphere2);
-    m_Spheres.push_back(sphere4);
-    m_Spheres.push_back(sphere5);
-    m_Spheres.push_back(sphere6);
 
     stbi_set_flip_vertically_on_load(true);
     skybox.image = stbi_loadf("skyboxes\\container_free_Ref.hdr", &skybox.x, &skybox.y, &skybox.chanels, 0);
 
+}
+
+bool Renderer::Render()
+{
+    auto start = std::chrono::steady_clock::now();
+
+    int width, height;
+    glfwGetFramebufferSize(m_window->GetID(), &width, &height);
+    OpenGL::UpdateViewPort(width, height);
+
+    if (frameIndex == 1)
+        memset(m_accumulationImage, 0, m_image.size.x * m_image.size.y * sizeof(glm::vec4));
+
+
+
+    std::for_each(std::execution::par, ImageVerticalIter.begin(), ImageVerticalIter.end(),
+        [&](unsigned int y)
+        {
+            for (int x = 0; x < m_image.size.x; x++)
+            {
+                int index = (x + y * m_image.size.x);
+                float offset_u = random.Float2(-0.4f, 0.4f) / (float)m_image.size.x;
+                float offset_v = random.Float2(-0.4f, 0.4f) / (float)m_image.size.y;
+
+
+                float u = ((float)(x) / (float)m_image.size.x) + offset_u; // transforms to [-1.0, 1.0]
+                float v = ((float)(y) / (float)m_image.size.y) + offset_v;               // transforms to [-1.0, 1.0]
+
+
+                Ray ray = m_cam->get_ray(u, v);
+
+                m_accumulationImage[index] += Trace(ray);
+
+                glm::vec4 accumulationColor = m_accumulationImage[index];
+                accumulationColor /= (float)frameIndex;
+                accumulationColor.a = 1.0f;
+                m_image.data[index] = ConvertToRGBA(GammaCorection2(accumulationColor));
+            }
+        }
+    );
+
+    m_cam->Recalculate();
+
+    if (accumulate)
+        frameIndex++;
+    else
+        frameIndex = 1;
+
+    OpenGL::Draw(m_image);
+
+    //Imgui
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGuiRender();
+
+    ImGui::Render();
+    ImGui::EndFrame();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    m_window->SwapBuffers();
+    m_window->PollEvents();
+    GLFWwindow* backup_current_context = glfwGetCurrentContext();
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+    glfwMakeContextCurrent(backup_current_context);
+
+    auto end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> result = end - start;
+    std::string diff = std::to_string(result.count());
+    glfwSetWindowTitle(m_window->GetID(), diff.c_str());
+
+    return !glfwWindowShouldClose(m_window->GetID());
 }
 
 HitInfo Renderer::CalculateRayCollision(Ray ray)
@@ -124,13 +180,13 @@ HitInfo Renderer::RaySphere(Ray ray, Sphere sphere)
     glm::vec3 offsetRayOrigin = ray.origin - sphere.center;
 
     float a = glm::dot(ray.direction, ray.direction);
-    float b = 2 * glm::dot(offsetRayOrigin, ray.direction);
+    float half_b = glm::dot(offsetRayOrigin, ray.direction);
     float c = glm::dot(offsetRayOrigin, offsetRayOrigin) - sphere.radius * sphere.radius;
 
-    float discriminant = b * b - 4 * a * c;
+    float discriminant = half_b * half_b - a * c;
     if (discriminant >= 0)
     {
-        float dst = (-b - sqrt(discriminant)) / (2.0 * a);
+        float dst = (-half_b - glm::sqrt(discriminant)) / a;
 
         if (dst >= 0)
         {
@@ -139,7 +195,6 @@ HitInfo Renderer::RaySphere(Ray ray, Sphere sphere)
             hitInfo.hitPoint = ray.origin + ray.direction * dst;
             hitInfo.normal = glm::normalize(hitInfo.hitPoint - sphere.center);
             hitInfo.hitPoint = ray.origin + ray.direction * dst + hitInfo.normal * 0.00001f;
-
         }
     }
 
@@ -167,13 +222,14 @@ glm::vec4 Renderer::Trace(Ray& ray)
 
             Material material = hitInfo.mat;
             ray.origin = hitInfo.hitPoint;
-            glm::vec3 diffuseDir = glm::normalize(hitInfo.normal + RandomDirecion());
+            glm::vec3 diffuseDir = glm::normalize(hitInfo.normal + random.InUnitSphere());
             glm::vec3 specularDir = glm::reflect(ray.direction, hitInfo.normal);
-            ray.direction = LerpVec3(diffuseDir, specularDir, material.smoothness);
+            bool isSpecularBounce = material.specularProbability >= random.Float();
+            ray.direction = LerpVec3(diffuseDir, specularDir, material.smoothness * isSpecularBounce);
 
             glm::vec4 emittedLight = material.emissionColor * material.emissionStrength;
             incomingLight += (emittedLight * rayColor);
-            rayColor *= material.albido;
+            rayColor *= glm::vec4(LerpVec3(material.albido, material.specularColor, isSpecularBounce), 1.0f);
         }
         else
         {
@@ -185,14 +241,14 @@ glm::vec4 Renderer::Trace(Ray& ray)
     return glm::min(incomingLight, glm::vec4(1.0f));
 }
 
-void Renderer::ImGuiRender(bool& accumulate, uint32_t* image, camera& cam)
+void Renderer::ImGuiRender()
 {
     ImGui::Begin("pepa");
     ImGui::Checkbox("Accumulation", &accumulate);
     if (ImGui::Button("Save"))
     {
         stbi_flip_vertically_on_write(true);
-        stbi_write_png("IMAGE_NAME.png", dimesnisons.x, dimesnisons.y, 4, image, dimesnisons.x * 4);
+        stbi_write_png("IMAGE_NAME.png", m_image.size.x, m_image.size.y, 4, m_image.data, m_image.size.x * 4);
     }
 
     for (int i = 0; i < m_Spheres.size(); i++)
@@ -202,29 +258,28 @@ void Renderer::ImGuiRender(bool& accumulate, uint32_t* image, camera& cam)
         std::string smoothness = "Smoothness" + number;
         std::string albido = "Albido" + number;
         std::string center = "Center" + number;
+        std::string specularColor = "SpecularColor" + number;
+        std::string specularProb = "SpecularProb" + number;
+
+
 
 
         Sphere sphere = m_Spheres[i];
-        ImGui::SliderFloat(radius.c_str(), &m_Spheres[i].radius, 0.1f, 3.0f);
-        ImGui::SliderFloat(smoothness.c_str(), &m_Spheres[i].mat.smoothness, 0.0f, 1.0f);
-        ImGui::ColorEdit4(albido.c_str(), &m_Spheres[i].mat.albido.x);
         ImGui::SliderFloat3(center.c_str(), &m_Spheres[i].center.x, -2.0f, 2.0f);
+        ImGui::SliderFloat(radius.c_str(), &m_Spheres[i].radius, 0.1f, 3.0f);
+        ImGui::ColorEdit4(albido.c_str(), &m_Spheres[i].mat.albido.x);
+        ImGui::ColorEdit4(specularColor.c_str(), &m_Spheres[i].mat.specularColor.x);
+        ImGui::SliderFloat(smoothness.c_str(), &m_Spheres[i].mat.smoothness, 0.0f, 1.0f);
+        ImGui::SliderFloat(specularProb.c_str(), &m_Spheres[i].mat.specularProbability, 0.0f, 1.0f);
     }
+    ImGui::End();
 
-    //ImGui::Text("Camera");
-    //ImGui::SliderFloat3("From", &cam.m_lookfrom.x, -2.0f, 2.0f);
-    //ImGui::SliderFloat3("At", &cam.m_lookat.x, -2.0f, 2.0f);
 
-    //if (ImGui::Button("Recalculate"))
-    //{
-    //    cam.Recalculate();
-    //}
+    ImGui::Begin("Camera");
+    ImGui::SliderFloat2("From", &m_cam->m_lookfrom.x, -3.0f, 3.0f);
+    ImGui::SliderFloat2("At", &m_cam->m_lookat.x, -3.0f, 3.0f);
 
     ImGui::End();
-}
-
-void Renderer::Render()
-{
 }
 
 glm::vec4 Renderer::Skybox(Ray ray)

@@ -160,6 +160,8 @@
     <ClCompile Include="dependencies\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="dependencies\stb\stb_implementation.cpp" />
     <ClCompile Include="dependencies\stb\stb_vorbis.c" />
+    <ClCompile Include="src\OpenGL.cpp" />
+    <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\ShaderClass.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Loader.cpp" />
@@ -199,6 +201,9 @@
     <ClInclude Include="dependencies\stb\stb_tilemap_editor.h" />
     <ClInclude Include="dependencies\stb\stb_truetype.h" />
     <ClInclude Include="dependencies\stb\stb_voxel_render.h" />
+    <ClInclude Include="src\Image.h" />
+    <ClInclude Include="src\OpenGL.h" />
+    <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\ShaderClass.h" />
     <ClInclude Include="src\Loader.h" />
     <ClInclude Include="src\Renderer.h" />

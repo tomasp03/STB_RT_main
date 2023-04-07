@@ -13,12 +13,13 @@ public:
         float aspect_ratio
     )
     {
+        m_lookfrom = lookfrom;
+        m_lookat = lookat; 
         m_vup = vup;
         m_vfov = vfov;
         m_aspect_ratio = aspect_ratio;
 
-        float theta = glm::radians(vfov);
-        float h = tan(theta / 2);
+        float h = glm::tan(vfov / 2);
         float viewport_height = 2.0 * h;
         float viewport_width = aspect_ratio * viewport_height;
 
@@ -39,8 +40,7 @@ public:
 
     void Recalculate()
     {
-        float theta = glm::radians(m_vfov);
-        float h = tan(theta / 2);
+        float h = glm::tan(m_vfov / 2);
         float viewport_height = 2.0 * h;
         float viewport_width = m_aspect_ratio * viewport_height;
 

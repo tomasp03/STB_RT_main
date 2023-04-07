@@ -1,20 +1,31 @@
 #pragma once
 #include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_opengl3.h>
+#include <ImGui/imgui_impl_glfw.h>
+
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
 #include "Material.h"
+#include "ShaderClass.h"
 #include "Random.h"
 #include "HitInfo.h"
 #include "Ray.h"
 #include "Camera.h"
 #include "Sphere.h"
+#include "Window.h"
+#include "Loader.h"
+#include "Image.h"
+
 
 #include <vector>
+#include <chrono>
+#include <execution>
 #include <string>
 #include <math.h>
 #include <iostream>
-
+#include "Scene.h"
+#include "OpenGL.h"
 #define PI 3.1415926538f
 
 struct Skybox
@@ -32,17 +43,31 @@ private:
 	int MaxBounces = 30;
 	Skybox skybox;
 	camera* m_cam;
-	glm::ivec2 dimesnisons;
+
+	Image m_image;
+	glm::vec4* m_accumulationImage;
+
+	Window* m_window;
+	Shader* m_shader;
+
+	std::vector<int> ImageVerticalIter;
+	bool accumulate = true;
+	unsigned int frameIndex = 1;
+
+	GLuint screenTex;
+	GLuint VAO, VBO, EBO;
+
+	Random random;
 
 public:
-	Renderer(int width, int height, camera* cam);
+	Renderer(int width, int height);
 
 	HitInfo CalculateRayCollision(Ray ray);
 	HitInfo RaySphere(Ray ray, Sphere sphere);
 	glm::vec4 Trace(Ray& ray);
 	glm::vec4 BackgroundColor(Ray ray);
-	void ImGuiRender(bool& accumulation, uint32_t* image, camera& cam);
-	void Render();
+	void ImGuiRender();
+	bool Render();
 	glm::vec4 Skybox(Ray ray);
 };
 
