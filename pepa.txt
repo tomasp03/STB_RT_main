@@ -1,0 +1,36 @@
+Radius 0 = 0.482
+Center 0 = vec3(-1.013000, 1.040000, -1.000000)
+Albido 0 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+Smoothness 0 = 0
+SpecularColor 0 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+SpecularProb 0 = 0
+EmissionStrengh 0 = 0
+EmissionColor 0 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+
+Radius 1 = 0.522
+Center 1 = vec3(0.000000, -0.500000, -1.000000)
+Albido 1 = vec3(0.426182, 1.000000, 0.024510, 1.000000)
+Smoothness 1 = 1
+SpecularColor 1 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+SpecularProb 1 = 0.256
+EmissionStrengh 1 = 0
+EmissionColor 1 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+
+Radius 2 = 0.5
+Center 2 = vec3(1.000000, 0.000000, -1.000000)
+Albido 2 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+Smoothness 2 = 0
+SpecularColor 2 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+SpecularProb 2 = 0
+EmissionStrengh 2 = 0
+EmissionColor 2 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+
+Radius 3 = 0.5
+Center 3 = vec3(0.000000, 1.000000, -5.000000)
+Albido 3 = vec3(0.000000, 0.000000, 0.000000, 0.000000)
+Smoothness 3 = 0
+SpecularColor 3 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+SpecularProb 3 = 0
+EmissionStrengh 3 = 20
+EmissionColor 3 = vec3(1.000000, 1.000000, 1.000000, 1.000000)
+

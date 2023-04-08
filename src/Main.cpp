@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Files.h"
 
 
 #define IMAGE_WIDTH 1300
@@ -15,7 +16,14 @@ int main()
 
 #if MT
 
+	//Test
+
+
+	//Test end
+
 	while(render.Render());
+	
+	render.ShutWindow();
 
 #else
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
@@ -54,5 +62,6 @@ int main()
 		}
 	}
 #endif
+	//std::cin.get();
 	return 0;
 }

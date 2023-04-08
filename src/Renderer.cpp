@@ -23,8 +23,21 @@ static glm::vec4 GammaCorection2(glm::vec4 color)
 
 Renderer::Renderer(int width, int height)
 {
+    Plane plane;
+    plane.point = glm::vec3(0.0f, -0.5f, -1.0f);
+    plane.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
+    Material PlaneMat;
+    PlaneMat.albido = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    PlaneMat.emissionColor = glm::vec4(1);
+    PlaneMat.emissionStrength = 0.f;
+    PlaneMat.smoothness = 0.0f;
+    PlaneMat.specularColor = glm::vec4(1);
+    PlaneMat.specularProbability = 0.0f;
+    plane.mat = PlaneMat;
+    m_planes.push_back(plane);
+
     random.Init();
-    m_Spheres = Scene::Load();
+    m_Spheres = scene1.Load("pepa.txt");
     m_image.size = glm::ivec2(width, height);
     m_accumulationImage = new glm::vec4[m_image.size.x * m_image.size.y];
     m_image.data = new uint32_t[m_image.size.x * m_image.size.y];
@@ -97,8 +110,8 @@ bool Renderer::Render()
             for (int x = 0; x < m_image.size.x; x++)
             {
                 int index = (x + y * m_image.size.x);
-                float offset_u = random.Float2(-0.4f, 0.4f) / (float)m_image.size.x;
-                float offset_v = random.Float2(-0.4f, 0.4f) / (float)m_image.size.y;
+                float offset_u = random.Float2(-0.3f, 0.3f) / (float)m_image.size.x;
+                float offset_v = random.Float2(-0.3f, 0.3f) / (float)m_image.size.y;
 
 
                 float u = ((float)(x) / (float)m_image.size.x) + offset_u; // transforms to [-1.0, 1.0]
@@ -151,11 +164,20 @@ bool Renderer::Render()
     return !glfwWindowShouldClose(m_window->GetID());
 }
 
+void Renderer::ShutWindow()
+{
+    m_window->Destroy();
+}
+
 HitInfo Renderer::CalculateRayCollision(Ray ray)
 {
     HitInfo closestHit;
     closestHit.didHit = false;
     closestHit.dst = FLT_MAX;
+
+    HitInfo closestHitPlane;
+    closestHitPlane.didHit = false;
+    closestHitPlane.dst = FLT_MAX;
 
     for (int i = 0; i < m_Spheres.size(); i++)
     {
@@ -169,7 +191,22 @@ HitInfo Renderer::CalculateRayCollision(Ray ray)
         }
     }
 
-    return closestHit;
+    for (int i = 0; i < m_planes.size(); i++)
+    {
+        Plane plane = m_planes[i];
+        HitInfo hitInfo = RayPlane(ray, plane);
+
+        if (hitInfo.didHit && hitInfo.dst < closestHitPlane.dst)
+        {
+            closestHitPlane = hitInfo;
+            closestHitPlane.mat = plane.mat;
+        }
+    }
+
+    if (!closestHit.didHit && !closestHitPlane.didHit)
+        return closestHit;
+
+    return closestHit.dst < closestHitPlane.dst ? closestHit : closestHitPlane;
 }
 
 HitInfo Renderer::RaySphere(Ray ray, Sphere sphere)
@@ -194,9 +231,33 @@ HitInfo Renderer::RaySphere(Ray ray, Sphere sphere)
             hitInfo.dst = dst;
             hitInfo.hitPoint = ray.origin + ray.direction * dst;
             hitInfo.normal = glm::normalize(hitInfo.hitPoint - sphere.center);
-            hitInfo.hitPoint = ray.origin + ray.direction * dst + hitInfo.normal * 0.00001f;
+            hitInfo.hitPoint = hitInfo.hitPoint + hitInfo.normal * 0.00001f;
         }
     }
+
+    return hitInfo;
+}
+
+HitInfo Renderer::RayPlane(Ray ray, Plane plane)
+{
+    HitInfo hitInfo;
+    hitInfo.didHit = false;
+
+    float denom = glm::dot(ray.direction, plane.Normal);
+    if (denom == 0)
+        return hitInfo;
+    float numerator = glm::dot(plane.point - ray.origin, plane.Normal);
+
+    float t = numerator / denom;
+
+    if (t < 0)
+        return hitInfo;
+
+    hitInfo.didHit = true;
+    hitInfo.normal = plane.Normal;
+    hitInfo.hitPoint = ray.At(t);
+    hitInfo.dst = t;
+    hitInfo.hitPoint = hitInfo.hitPoint + hitInfo.normal * 0.00001f;
 
     return hitInfo;
 }
@@ -274,11 +335,34 @@ void Renderer::ImGuiRender()
     }
     ImGui::End();
 
-
     ImGui::Begin("Camera");
     ImGui::SliderFloat2("From", &m_cam->m_lookfrom.x, -3.0f, 3.0f);
     ImGui::SliderFloat2("At", &m_cam->m_lookat.x, -3.0f, 3.0f);
+    ImGui::End();
 
+    ImGui::Begin("Planes");
+    for (int i = 0; i < m_planes.size(); i++)
+    {
+        std::string number = " " + std::to_string(i);
+        std::string smoothness = "Smoothness" + number;
+        std::string albido = "Albido" + number;
+        std::string center = "Point" + number;
+        std::string specularColor = "SpecularColor" + number;
+        std::string specularProb = "SpecularProb" + number;
+
+        ImGui::SliderFloat(center.c_str(), &m_planes[i].point.y, -3.0f, 3.0f);
+        ImGui::ColorEdit4(albido.c_str(), &m_planes[i].mat.albido.x);
+        ImGui::ColorEdit4(specularColor.c_str(), &m_planes[i].mat.specularColor.x);
+        ImGui::SliderFloat(smoothness.c_str(), &m_planes[i].mat.smoothness, 0.0f, 1.0f);
+        ImGui::SliderFloat(specularProb.c_str(), &m_planes[i].mat.specularProbability, 0.0f, 1.0f);
+    }
+    ImGui::End();
+
+    ImGui::Begin("Scene");
+    if (ImGui::Button("Save"))
+    {
+        scene1.Save("pepa.txt", m_Spheres);
+    }
     ImGui::End();
 }
 

@@ -2,7 +2,6 @@
 
 std::vector<Sphere> Scene::Load()
 {
-    std::vector<Sphere> Spheres;
     Sphere sphere1, sphere2, sphere3, sphere4, sphere5, sphere6;
 
     sphere1.center = glm::vec3(0.0, 0.0, -1.0);
@@ -70,12 +69,128 @@ std::vector<Sphere> Scene::Load()
     sphere6.mat.emissionColor = glm::vec4(1);
     sphere6.mat.emissionStrength = 0.0f;
 
-    Spheres.push_back(sphere1);
-    Spheres.push_back(sphere2);
-    Spheres.push_back(sphere3);
-    Spheres.push_back(sphere4);
+    spheres.push_back(sphere1);
+    spheres.push_back(sphere2);
+    spheres.push_back(sphere3);
+    spheres.push_back(sphere4);
     //Spheres.push_back(sphere5);
     //Spheres.push_back(sphere6);
 
-    return Spheres;
+    return spheres;
+}
+
+std::vector<Sphere> Scene::Load(std::string path)
+{
+    std::ifstream stream;
+    stream.open(path);
+
+    if (!stream.is_open())
+    {
+        std::cout << "ERROR: Failed Loading FILE" << std::endl;
+        return spheres;
+    }
+
+    std::string line;
+    Sphere sphere;
+    while (std::getline(stream, line))
+    {
+        std::string type = line.substr(0, line.find(" "));
+        
+        if (type == "Radius")
+            sphere.radius = std::stof(line.substr(line.find("=") + 2, line.find("\n")));
+        else if (type == "Center")
+        {
+            int vecLoc = line.find("vec3");
+            float x = std::stof(line.substr(vecLoc + 5, vecLoc + 12));
+            float y = std::stof(line.substr(vecLoc + 15, vecLoc + 22));
+            float z = std::stof(line.substr(vecLoc + 25, vecLoc + 32));
+            sphere.center = glm::vec3(x, y, z);
+        }
+        else if (type == "Albido")
+        {
+            int vecLoc = line.find("vec3");
+            float x = std::stof(line.substr(vecLoc + 5, vecLoc + 12));
+            float y = std::stof(line.substr(vecLoc + 15, vecLoc + 22));
+            float z = std::stof(line.substr(vecLoc + 25, vecLoc + 32));
+            float w = std::stof(line.substr(vecLoc + 35, vecLoc + 42));
+            sphere.mat.albido = glm::vec4(x, y, z, w);
+        }
+        else if (type == "Smoothness")
+        {
+            sphere.mat.smoothness = std::stof(line.substr(line.find("=") + 2, line.find("\n")));
+        }
+        else if (type == "SpecularColor")
+        {
+            int vecLoc = line.find("vec3");
+            float x = std::stof(line.substr(vecLoc + 5, vecLoc + 12));
+            float y = std::stof(line.substr(vecLoc + 15, vecLoc + 22));
+            float z = std::stof(line.substr(vecLoc + 25, vecLoc + 32));
+            float w = std::stof(line.substr(vecLoc + 35, vecLoc + 42));
+            sphere.mat.specularColor = glm::vec4(x, y, z, w);
+        }
+        else if (type == "SpecularProb")
+        {
+            sphere.mat.specularProbability = std::stof(line.substr(line.find("=") + 2, line.find("\n")));
+        }
+        else if (type == "EmissionStrengh")
+        {
+            sphere.mat.emissionStrength = std::stof(line.substr(line.find("=") + 2, line.find("\n")));
+        }
+        else if (type == "EmissionColor")
+        {
+            int vecLoc = line.find("vec3");
+            float x = std::stof(line.substr(vecLoc + 5, vecLoc + 12));
+            float y = std::stof(line.substr(vecLoc + 15, vecLoc + 22));
+            float z = std::stof(line.substr(vecLoc + 25, vecLoc + 32));
+            float w = std::stof(line.substr(vecLoc + 35, vecLoc + 42));
+            sphere.mat.emissionColor = glm::vec4(x, y, z, w);
+        }
+        else
+        {
+            spheres.push_back(sphere);
+        }
+    }
+    stream.close();
+
+
+    return spheres;
+}
+
+void Scene::Save(std::string name, std::vector<Sphere> spheres)
+{
+    std::ofstream stream;
+    stream.open(name);
+
+    if (!stream.is_open())
+    {
+        std::cout << "ERROR: Failed Loading FILE" << std::endl;
+        return;
+    }
+
+    for (int i = 0; i < spheres.size(); i++)
+    {
+        Sphere sphere = spheres[i];
+        std::string number = std::to_string(i);
+        std::string radius = "Radius " + number;
+        std::string center = "Center " + number;
+        std::string albido = "Albido " + number;
+        std::string smoothness = "Smoothness " + number;
+        std::string specularColor = "SpecularColor " + number;
+        std::string specularProb = "SpecularProb " + number;
+        std::string EmissionStrengh = "EmissionStrengh " + number;
+        std::string EmissionColor = "EmissionColor " + number;
+
+
+        stream << radius << " = " << sphere.radius << "\n";
+        stream << center << " = " << converter::ToString(sphere.center) << "\n";
+        stream << albido << " = " << converter::ToString(sphere.mat.albido) << "\n";
+        stream << smoothness << " = " << sphere.mat.smoothness << "\n";
+        stream << specularColor << " = " << converter::ToString(sphere.mat.specularColor) << "\n";
+        stream << specularProb << " = " << sphere.mat.specularProbability << "\n";   
+        stream << EmissionStrengh << " = " << sphere.mat.emissionStrength << "\n";
+        stream << EmissionColor << " = " << converter::ToString(sphere.mat.emissionColor) << "\n";
+        stream << "\n";
+    }
+
+    stream.close();
 }

@@ -8,3 +8,10 @@ struct Sphere
 	Material mat;	
 };
 
+struct Plane
+{
+	glm::vec3 point;
+	glm::vec3 Normal;
+	Material mat;
+};
+

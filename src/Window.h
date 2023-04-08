@@ -12,6 +12,7 @@ public:
 	~Window();
 	void SwapBuffers();
 	void PollEvents();
+	void Destroy();
 	GLFWwindow* GetID();
 };
 

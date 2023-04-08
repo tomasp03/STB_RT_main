@@ -37,6 +37,11 @@ void Window::PollEvents()
 	glfwPollEvents();
 }
 
+void Window::Destroy()
+{
+	glfwDestroyWindow(m_window);
+}
+
 GLFWwindow* Window::GetID()
 {
 	return m_window;

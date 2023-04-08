@@ -40,6 +40,9 @@ class Renderer
 {
 private:
 	std::vector<Sphere> m_Spheres;
+	std::vector<Plane> m_planes;
+
+
 	int MaxBounces = 30;
 	Skybox skybox;
 	camera* m_cam;
@@ -59,15 +62,19 @@ private:
 
 	Random random;
 
+	Scene scene1;
+
 public:
 	Renderer(int width, int height);
 
 	HitInfo CalculateRayCollision(Ray ray);
 	HitInfo RaySphere(Ray ray, Sphere sphere);
+	HitInfo RayPlane(Ray ray, Plane plane);
 	glm::vec4 Trace(Ray& ray);
 	glm::vec4 BackgroundColor(Ray ray);
 	void ImGuiRender();
 	bool Render();
+	void ShutWindow();
 	glm::vec4 Skybox(Ray ray);
 };
 

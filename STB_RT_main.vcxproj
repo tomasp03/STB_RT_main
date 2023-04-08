@@ -160,6 +160,7 @@
     <ClCompile Include="dependencies\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="dependencies\stb\stb_implementation.cpp" />
     <ClCompile Include="dependencies\stb\stb_vorbis.c" />
+    <ClCompile Include="src\Files.cpp" />
     <ClCompile Include="src\OpenGL.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\ShaderClass.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\ToString.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +203,7 @@
     <ClInclude Include="dependencies\stb\stb_tilemap_editor.h" />
     <ClInclude Include="dependencies\stb\stb_truetype.h" />
     <ClInclude Include="dependencies\stb\stb_voxel_render.h" />
+    <ClInclude Include="src\Files.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\OpenGL.h" />
     <ClInclude Include="src\Scene.h" />
@@ -213,6 +216,7 @@
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Random.h" />
+    <ClInclude Include="src\ToString.h" />
     <ClInclude Include="src\Window.h" />
   </ItemGroup>
   <ItemGroup>
