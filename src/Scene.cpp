@@ -73,8 +73,8 @@ std::vector<Sphere> Scene::Load()
     spheres.push_back(sphere2);
     spheres.push_back(sphere3);
     spheres.push_back(sphere4);
-    //Spheres.push_back(sphere5);
-    //Spheres.push_back(sphere6);
+    //spheres.push_back(sphere5);
+    //spheres.push_back(sphere6);
 
     return spheres;
 }

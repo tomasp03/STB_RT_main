@@ -23,8 +23,8 @@ static glm::vec4 GammaCorection2(glm::vec4 color)
 
 Renderer::Renderer(int width, int height)
 {
-    Plane plane;
-    plane.point = glm::vec3(0.0f, -0.5f, -1.0f);
+    Plane plane, plane2, plane3, plane4, plane5;
+    plane.point = glm::vec3(0.0f, -0.5f, 0.0f);
     plane.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
     Material PlaneMat;
     PlaneMat.albido = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -34,10 +34,11 @@ Renderer::Renderer(int width, int height)
     PlaneMat.specularColor = glm::vec4(1);
     PlaneMat.specularProbability = 0.0f;
     plane.mat = PlaneMat;
+
     m_planes.push_back(plane);
 
     random.Init();
-    m_Spheres = scene1.Load("pepa.txt");
+    m_Spheres = scene1.Load();
     m_image.size = glm::ivec2(width, height);
     m_accumulationImage = new glm::vec4[m_image.size.x * m_image.size.y];
     m_image.data = new uint32_t[m_image.size.x * m_image.size.y];
@@ -158,9 +159,8 @@ bool Renderer::Render()
 
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> result = end - start;
-    std::string diff = std::to_string(result.count());
-    glfwSetWindowTitle(m_window->GetID(), diff.c_str());
-
+    diff = result.count() * 1000.0;
+    FPS = 1 / result.count();
     return !glfwWindowShouldClose(m_window->GetID());
 }
 
@@ -305,6 +305,10 @@ glm::vec4 Renderer::Trace(Ray& ray)
 void Renderer::ImGuiRender()
 {
     ImGui::Begin("pepa");
+    std::string ms = std::to_string(diff) + " ms";
+    std::string Frames = std::to_string(FPS) + " FPS";
+    ImGui::Text(ms.c_str());
+    ImGui::Text(Frames.c_str());
     ImGui::Checkbox("Accumulation", &accumulate);
     if (ImGui::Button("Save"))
     {

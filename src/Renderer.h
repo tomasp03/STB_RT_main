@@ -61,8 +61,10 @@ private:
 	GLuint VAO, VBO, EBO;
 
 	Random random;
-
 	Scene scene1;
+
+	double FPS;
+	double diff;
 
 public:
 	Renderer(int width, int height);

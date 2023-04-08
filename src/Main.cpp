@@ -2,8 +2,8 @@
 #include "Files.h"
 
 
-#define IMAGE_WIDTH 1300
-#define IMAGE_HEIGHT 800
+#define IMAGE_WIDTH 1000
+#define IMAGE_HEIGHT 700
 #define IMAGE_NAME "RayTracing.png"
 
 #define MT 1
