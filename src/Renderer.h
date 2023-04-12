@@ -12,7 +12,7 @@
 #include "HitInfo.h"
 #include "Ray.h"
 #include "Camera.h"
-#include "Sphere.h"
+#include "Shapes/AllShapes.h"
 #include "Window.h"
 #include "Loader.h"
 #include "Image.h"
@@ -24,8 +24,9 @@
 #include <string>
 #include <math.h>
 #include <iostream>
-#include "Scene.h"
-#include "OpenGL.h"
+#include "Scene/Scene.h"
+#include "OpenGL/OpenGL.h"
+
 #define PI 3.1415926538f
 
 struct Skybox
@@ -38,45 +39,44 @@ struct Skybox
 
 class Renderer
 {
-private:
-	std::vector<Sphere> m_Spheres;
-	std::vector<Plane> m_planes;
+public:
+	struct Settings
+	{
+		bool Accumulate = false;
+	};
 
+	Renderer(int width, int height);
+	Image* Render(Scene& scene, Camera& camera);
+
+	Settings& GetSettings() { return m_Settings; }
+	Image* GetImgPtr() { return &m_image; }
+	Scene* GetScnPtr() { return m_ActiveScene; }
+	Camera* GetCamPtr() { return m_ActiveCamera; }
+
+private:
+	Scene* m_ActiveScene = nullptr;
+	Camera* m_ActiveCamera = nullptr;
 
 	int MaxBounces = 30;
 	Skybox skybox;
-	camera* m_cam;
 
-	Image m_image;
 	glm::vec4* m_accumulationImage;
-
-	Window* m_window;
-	Shader* m_shader;
-
-	std::vector<int> ImageVerticalIter;
-	bool accumulate = true;
+	Settings m_Settings;
 	unsigned int frameIndex = 1;
 
-	GLuint screenTex;
-	GLuint VAO, VBO, EBO;
+	std::vector<int> ImageVerticalIter;
+
+	Image m_image;
 
 	Random random;
-	Scene scene1;
 
 	double FPS;
 	double diff;
 
-public:
-	Renderer(int width, int height);
-
 	HitInfo CalculateRayCollision(Ray ray);
-	HitInfo RaySphere(Ray ray, Sphere sphere);
-	HitInfo RayPlane(Ray ray, Plane plane);
 	glm::vec4 Trace(Ray& ray);
 	glm::vec4 BackgroundColor(Ray ray);
-	void ImGuiRender();
-	bool Render();
-	void ShutWindow();
 	glm::vec4 Skybox(Ray ray);
+
 };
 

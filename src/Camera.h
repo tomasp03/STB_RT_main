@@ -2,10 +2,10 @@
 #include "glm/glm.hpp"
 #include "Ray.h"
 
-class camera
+class Camera
 {
 public:
-    camera(
+    Camera(
         glm::vec3 lookfrom,
         glm::vec3 lookat,
         glm::vec3 vup,
@@ -38,8 +38,9 @@ public:
         return Ray(origin, lower_left_corner + s * horizontal + t * vertical - origin);
     }
 
-    void Recalculate()
+    void Recalculate(float aspect_ratio)
     {
+        m_aspect_ratio = aspect_ratio;
         float h = glm::tan(m_vfov / 2);
         float viewport_height = 2.0 * h;
         float viewport_width = m_aspect_ratio * viewport_height;

@@ -6,5 +6,5 @@ namespace OpenGL
 {
 	void Init();
 	void UpdateViewPort(int width, int height);
-	void Draw(Image image);
+	void Draw(Image* image);
 }

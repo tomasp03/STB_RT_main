@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sphere.h"
+#include "Shapes/AllShapes.h"
 #include "Files.h"
 #include "ToString.h"
 
@@ -9,15 +9,15 @@
 #include <iostream>
 #include <string>
 
-class Scene
+struct Scene
 {
-private:
-    std::vector<Sphere> spheres;
+    std::vector<Material> materials;
     Files file;
-
-public:
+    glm::ivec2 dimensions;
     std::vector<Sphere> Load();
     std::vector<Sphere> Load(std::string path);
+    void Save(std::string name);
 
-    void Save(std::string name, std::vector<Sphere> spheres);
+    std::vector<Sphere> spheres;
+    std::vector<Plane> planes;
 };

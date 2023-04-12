@@ -69,9 +69,9 @@ namespace OpenGL
     {
         glViewport(0, 0, width, height);
     }
-    void Draw(Image image)
+    void Draw(Image* image)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.size.x, image.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->size.x, image->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         m_shader->Activate();
